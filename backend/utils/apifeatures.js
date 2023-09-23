@@ -30,14 +30,25 @@ class ApiFeatures {
     filter() {
         const queryCopy = { ...this.queryStr }
 
-        console.log(queryCopy);
+        // console.log(queryCopy);
         const removeField = ["keyword", "page", "limit"];
 
         removeField.forEach(key => { delete queryCopy[key] });
 
-        console.log(queryCopy);
+        let queryStr = JSON.stringify(queryCopy);
 
-        this.query = this.query.find({ queryCopy });
+        queryStr = queryStr.replace(/\b(gt|gte|lt|lte)\b/g, key => `$${key}`);
+
+        this.query = this.query.find(JSON.parse(queryStr));
+        return this;
+    }
+
+    pagination(resultsPerPage) {
+        const currentPage = this.queryStr.page || 1;
+        const skip = (currentPage - 1) * resultsPerPage;
+
+        this.query = this.query.limit(resultsPerPage).skip(skip);
+
         return this;
     }
 }

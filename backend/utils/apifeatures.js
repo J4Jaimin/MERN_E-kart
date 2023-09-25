@@ -5,7 +5,7 @@ class ApiFeatures {
     }
 
     search() {
-        const keyword = this.queryStr.keyword
+        const newQuery = this.queryStr.keyword
             ? {
                 $or: [{
                     name: {
@@ -23,7 +23,7 @@ class ApiFeatures {
             }
             : {};
 
-        this.query = this.query.find({ ...keyword });
+        this.query = this.query.find({ ...newQuery });
         return this;
     }
 

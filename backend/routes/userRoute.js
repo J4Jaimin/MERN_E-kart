@@ -9,9 +9,10 @@ const { createUser,
     updateProfile,
     getAllUsers,
     getParticularUserDetails,
-    changeRoleOfUser } = require("../controllers/userController");
+    changeRoleOfUser,
+    deleteAUser } = require("../controllers/userController");
 
-const { isAuthenticatedUser, authorizeRoles } = require("../middleware/auth");
+const { isAuthenticatedUser, authorizeRoles, canBeDeletedUser } = require("../middleware/auth");
 const router = express.Router();
 
 router.route("/register").post(createUser);
@@ -35,6 +36,8 @@ router.route("/admin/users/all").get(isAuthenticatedUser, authorizeRoles("admin"
 router.route("/admin/users/:id").get(isAuthenticatedUser, authorizeRoles("admin"), getParticularUserDetails);
 
 router.route("/admin/users/update/role/:id").patch(isAuthenticatedUser, authorizeRoles("admin"), changeRoleOfUser);
+
+router.route("/admin/users/delete/:id").delete(isAuthenticatedUser, authorizeRoles("admin"), deleteAUser);
 
 
 module.exports = router

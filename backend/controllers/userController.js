@@ -4,6 +4,7 @@ const User = require("../models/userModel");
 const sendToken = require("../utils/sendJWTtoken");
 const sendEmail = require("../utils/sendEmail.js");
 const crypto = require("crypto");
+const { canBeDeletedUser } = require("../middleware/auth");
 
 // register a user
 
@@ -241,4 +242,21 @@ exports.changeRoleOfUser = catchAsyncError(async (req, res, next) => {
 
 exports.deleteAUser = catchAsyncError(async (req, res, next) => {
 
+    const user = User.findById(req.params.id)
+        .then((user) => {
+            if (user.role === "user") {
+                user.deleteOne()
+                    .then(() => {
+                        res.status(200).json({
+                            success: true
+                        });
+                    });
+            }
+            else {
+                next(new Errorhandler("Other user is also admin."), 403);
+            }
+        })
+        .catch(() => {
+            next(new Errorhandler("User doesn't exist."), 400);
+        });
 });

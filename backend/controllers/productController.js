@@ -163,32 +163,34 @@ exports.deleteAReviewOfProduct = catchAsyncError(async (req, res, next) => {
         return next(new Errorhandler("Product not found!"), 404);
     }
 
-    product.reviews.forEach((rev) => {
-        if (rev._id.toString() === req.query.reviewId.toString()) {
-            if (rev.user.toString() != req.user.id.toString()) {
-                return next(new Errorhandler("You haven't access to delete other reviews."), 400);
-            }
+    let lenOfReviews = product.reviews.length;
+
+    product.reviews.forEach((rev, index) => {
+        if (rev._id.toString() === req.query.reviewId.toString() && rev.user.toString() === req.user.id.toString()) {
+            product.reviews.splice(index, 1);
+            next();
         }
     });
 
-    product.reviews = product.reviews.filter((rev) => {
-        return rev._id.toString() != req.query.reviewId.toString();
-    });
+    if (product.reviews.length === lenOfReviews - 1) {
+        let sumOfRating = 0;
 
-    let sumOfRating = 0;
+        product.reviews.forEach((rev) => {
+            sumOfRating += rev.rating;
+        })
 
-    product.reviews.forEach((rev) => {
-        sumOfRating += rev.rating;
-    })
+        product.reviews.ratings = sumOfRating / product.reviews.length;
 
-    product.reviews.ratings = sumOfRating / product.reviews.length;
+        product.reviews.numberOfReviews = product.reviews.length;
 
-    product.reviews.numberOfReviews = product.reviews.length;
+        await product.save({ validateBeforeSave: false });
 
-    await product.save({ validateBeforeSave: false });
-
-    res.status(201).json({
-        success: true,
-        message: `Your review deleted successfully for this product: "${product.name}"`,
-    });
-})
+        res.status(201).json({
+            success: true,
+            message: `Your review deleted successfully for this product: "${product.name}"`,
+        });
+    }
+    else {
+        return next(new Errorhandler("You haven't access to delete other's review."));
+    }
+});

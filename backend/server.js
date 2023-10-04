@@ -17,6 +17,12 @@ dotenv.config({ path: "backend/config/config.env" });
 // DB connection.
 connectDB();
 
+// home page
+
+app.get("/", (req, res) => {
+    res.send("<h1>Hello Welcome to E-kart!</h1>");
+});
+
 const server = app.listen(process.env.PORT, () => {
     console.log(`server is running on http://localhost:${process.env.PORT}`);
 });

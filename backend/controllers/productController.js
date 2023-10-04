@@ -136,6 +136,21 @@ exports.createOrUpdateProductReview = catchAsyncError(async (req, res, next) => 
     });
 });
 
+// update stock of product -- admin
+
+exports.updateProductStock = catchAsyncError(async (req, res, next) => {
+    const product = await Product.findById(req.params.id);
+
+    product.stock += req.body.stock;
+
+    await product.save({ validateBeforeSave: false });
+
+    res.status(200).json({
+        success: true,
+        product
+    });
+});
+
 // Get all review of Particular product
 
 exports.getAllReviewsOfProduct = catchAsyncError(async (req, res, next) => {
